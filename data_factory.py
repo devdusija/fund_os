@@ -105,14 +105,20 @@ class DataFactory:
         if not trades:
             return
 
+        keys = [
+            "trade_id", "isin", "trade_date", "settlement_date",
+            "side", "quantity", "price", "account",
+            "source", "scenario", "parent_trade_id",
+        ]
         all_keys = set()
         for trade in trades:
             all_keys.update(trade.keys())
-
-        keys = list(all_keys)
+        for k in all_keys:
+            if k not in keys:
+                keys.append(k)
 
         with open(file_path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=keys)
+            writer = csv.DictWriter(f, fieldnames=keys, extrasaction="ignore")
             writer.writeheader()
             writer.writerows(trades)
 
@@ -141,9 +147,10 @@ class DataFactory:
         self.write_csv(broker_path, broker_trades)
         self.write_csv(custodian_path, custodian_trades)
 
-        print("✅ Files generated:")
+        print("Files generated:")
         print("Broker:", broker_path)
         print("Custodian:", custodian_path)
+        return broker_trades, custodian_trades
 
 
 if __name__ == "__main__":
